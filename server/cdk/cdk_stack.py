@@ -2,6 +2,7 @@ from aws_cdk import (
     Stack,
     aws_lambda as lambda_,
     aws_dynamodb as dynamodb,
+    aws_iam as iam,
 )
 import aws_cdk
 from constructs import Construct
@@ -43,3 +44,8 @@ class FinalProjStack(Stack):
         )
         
         dynamo.grant_full_access(lambda_fn)
+        lambda_fn.role.add_managed_policy(
+            iam.ManagedPolicy.from_aws_managed_policy_name(
+                'AmazonTextractFullAccess'
+            )
+        )
