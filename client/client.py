@@ -31,7 +31,8 @@ def newuser(username, password):  # create new user
 
 def textract(file):
     directory = os.getcwd()  # get current directory for write new file
-    pic_bytes = open(directory+"\\"+file, 'rb').read()
+    path = os.path.join(directory, file)
+    pic_bytes = open(path, 'rb').read()
     pic_64 = base64.b64encode(pic_bytes)
     param = {'method': 'textract'}
     response = requests.post(
