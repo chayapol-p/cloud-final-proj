@@ -1,6 +1,7 @@
 import os
 import requests
 import base64
+import bcrypt
 
 # endpoint api gateway for use lambdafuction
 endpoint = 'https://shwoiyr3gb.execute-api.ap-southeast-1.amazonaws.com/default/Cloud-Final-FinalProject490383E6-gusO3NuxUHHh'
@@ -11,6 +12,8 @@ uuid = None
 
 
 def newuser(username, password):  # create new user
+    # password = bcrypt.kdf(password.encode('UTF-8'),
+    #                       salt=b'bnb2022', desired_key_bytes=32, rounds=100)
     param = {'username': username, 'password': password, 'method': 'newuser'}
     response = requests.post(
         endpoint, params=param, headers=headers)
@@ -18,15 +21,12 @@ def newuser(username, password):  # create new user
     return response.json()
 
 
-# def login(username, password):
-#     param = {'username': username, 'password': password, 'method': 'login'}
-#     response = requests.post(
-#         endpoint, params=param, headers=headers)
+def login(username, password):
+    param = {'username': username, 'password': password, 'method': 'login'}
+    response = requests.post(
+        endpoint, params=param, headers=headers)
 
-#     # set uuid
-#     #uuid = response.json().body()['user_id']
-
-#     return response.json()  # uuid
+    return response.json()
 
 
 def textract(file):
@@ -79,7 +79,10 @@ while True:
 
     if comands[0] == 'newuser':
         response = newuser(comands[1], comands[2])
+        print(response)
 
+    if comands[0] == 'login':
+        response = login(comands[1], comands[2])
         print(response)
 
     if comands[0] == 'textract':

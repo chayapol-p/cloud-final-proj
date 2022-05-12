@@ -11,6 +11,7 @@ import os
 
 dirname = os.path.dirname(__file__)
 
+
 class FinalProjStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, region: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
@@ -42,10 +43,16 @@ class FinalProjStack(Stack):
             read_capacity=2,
             write_capacity=2,
         )
-        
+
         dynamo.grant_full_access(lambda_fn)
         lambda_fn.role.add_managed_policy(
             iam.ManagedPolicy.from_aws_managed_policy_name(
                 'AmazonTextractFullAccess'
+            )
+        )
+
+        lambda_fn.role.add_managed_policy(
+            iam.ManagedPolicy.from_aws_managed_policy_name(
+                'SecretsManagerReadWrite'
             )
         )

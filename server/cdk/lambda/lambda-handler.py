@@ -7,7 +7,7 @@ import re
 
 
 def main(event, context):
-    
+
     dump = json.dumps(event)
     userInput = json.loads(dump)["queryStringParameters"]
     method = userInput['method']
@@ -19,6 +19,8 @@ def main(event, context):
 
     textractclient = boto3.client("textract", region_name=REGION)
     dynamo_client = boto3.client("dynamodb", region_name=REGION)
+    table = boto3.resource('dynamodb').Table(TABLE_NAME)
+    secrets = boto3.client('secretsmanager')
 
     def textract(picture_bytes):
         textract_response = textractclient.detect_document_text(
@@ -37,57 +39,81 @@ def main(event, context):
         extractedText[-1] = textract_response['Blocks'][-1]["Text"]
 
         return extractedText
-        
+
     def put_dynamo(user_id, resource_key, data):
-        return dynamo_client.put_item(
-            TableName=TABLE_NAME,
+        return table.put_item(
             Item={
-                "user_id": {"S":user_id},
-                "resource_key": {"S":resource_key},
-                "data": {"M": data},
+                "user_id": user_id,
+                "resource_key": resource_key,
+                "data": data,
             }
         )
 
     # # data = dynamo_client.get_item(TableName=TABLE_NAME, Key={"username": {"S": username}})
     # data = dynamo_client.get_item(TableName=TABLE_NAME,)
-    
+
     response = {
-            "success": False,
-            "data": 404
-        }
-    
+        "success": False,
+        "data": 404
+    }
+
     if method == 'newuser':
-        data_insert = {'username':{'data':userInput['username'], 'is_secret':False},'password':{'data':userInput['password'], 'is_secret':False}}
-        # put_dynamo(random_value,'base','username',userInput['username'])
-        # put_dynamo(random_value,'base','password',userInput['password'])
+
+        # data_insert = {'username': {"M":{'data': {"S":userInput['username']}, 'is_secret': {"BOOL":False}}}, 'password': {"M":{'data': {"S":userInput['password']}, 'is_secret': {"BOOL":False}}}}
+
         try:
-            put_dynamo(userInput['username'],'base', data_insert)
+            secret_res = secrets.create_secret(
+                Name=userInput['username'],
+                SecretString=('{"%(id)s" : "%(password)s"}' % {
+                              "id": random_value, "password": userInput['password']})
+            )
+            print(secret_res)
+            data_insert = {'password': random_value, 'is_secret': True}
+            db_res = put_dynamo(userInput['username'], 'base', data_insert)
+            print(db_res)
+
         except Exception as e:
             print(repr(e))
-        # data = dynamo_client.scan(TableName=TABLE_NAME, FilterExpression=Attr("resource_key").eq("base") & Attr("data").contains("username"))
-        
+
         response = {
             "success": True,
-            # "data": "201 Created"
-            "data": ""
+            "data": "201 Created"
         }
-    
+        # data = dynamo_client.scan(TableName=TABLE_NAME, FilterExpression=Attr("resource_key").eq("base") & Attr("data").contains("username"))
+
     if method == 'login':
-        # db_password = dynamo_client.get_item(TableName=TABLE_NAME, Key={"user"})
-        print("test")
-    
+        data = table.get_item(
+            Key={
+                "user_id": userInput['username'],
+                "resource_key": "base"
+            },
+            AttributesToGet=[
+                'data',
+            ],)['Item']['data']
+
+        password = data['password']
+
+        if data['is_secret']:
+            secret_res = json.loads(secrets.get_secret_value(
+                SecretId=userInput['username'])['SecretString'])
+            password = secret_res[password]
+
+        response = {
+            "success": True,
+            "data": password
+        }
+
     if method == 'textract':
         pic_64 = json.loads(dump)['body']
         pic_bytes = base64.b64decode(pic_64)
         text = textract(pic_bytes)
-        
+
         response = {
             "success": True,
             "data": text
         }
-        
 
     # print("Succeeded: 2022")
     print(json.dumps(response, indent=2))
-    
+
     return json.dumps(response, indent=2)
