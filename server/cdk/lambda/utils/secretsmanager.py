@@ -36,12 +36,3 @@ def put_secret(name, secret_value):
         raise
     else:
         return response
-
-
-def test_create_secret_handler(name, secret_value):
-    try:
-        create_secret(name, secret_value)
-        return {"success": True, "data": "Created"}
-    except Exception as e:
-        print("Create Error:", repr(e))
-        return {"success": True, "data": repr(e)}

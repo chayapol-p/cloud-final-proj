@@ -1,8 +1,7 @@
 import json
 
-from textract import textract_card_handler
-from dynamo import create_user_handler, login_handler
-from secretsmanager import test_create_secret_handler
+from handlers.feature import textract_card_handler, test_create_secret_handler
+from handlers.user import create_user_handler, login_handler
 
 # Main lambda function
 def lambda_handler(event, context):
@@ -13,7 +12,7 @@ def lambda_handler(event, context):
     body = json.loads(event["body"])
     print("event body:", body)
 
-    command = json.loads(event)["queryStringParameters"]["method"]
+    command = event["queryStringParameters"]["method"]
     print("Method:", command)
 
     # Define function for each command in commands var.

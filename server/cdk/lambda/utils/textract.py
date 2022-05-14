@@ -9,7 +9,7 @@ REGION = os.environ.get('REGION')
 textractclient = boto3.client("textract", region_name=REGION)
 
 
-def image_to_entities(textractclient, picture_bytes):
+def image_to_entities(picture_bytes):
     
     textract_response = textractclient.detect_document_text(
         Document={
@@ -27,15 +27,6 @@ def image_to_entities(textractclient, picture_bytes):
                 extractedText["expriry date"] = block["Text"]
     last_text = textract_response['Blocks'][-1]["Text"].lower()
     if last_text == "mastercard" or last_text == "visa":
-        extractedText["provider"] = textract_response['Blocks'][-1]["Text"]
+        extractedText["provider"] = last_text
 
     return extractedText
-
-def textract_card_handler(textractclient, picture, **kwargs):
-    pic_bytes = base64.b64decode(picture)
-    text_entities = image_to_entities(pic_bytes)
-    print("Text entities:", text_entities)
-    
-    # TODO: put data to dynamo and SM
-    return {"success": True,
-            "data": text_entities}
