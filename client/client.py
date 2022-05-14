@@ -11,9 +11,10 @@ uuid = None
 
 
 def newuser(username, password):  # create new user
-    param = {'username': username, 'password': password, 'method': 'newuser'}
+    param = {'method': 'newuser'}
+    data = {'username': username, 'password': password}
     response = requests.post(
-        endpoint, params=param, headers=headers)
+        endpoint, param=param, headers=headers, json=data)
 
     return response.json()
 
@@ -36,7 +37,7 @@ def textract(file):
     pic_64 = base64.b64encode(pic_bytes)
     param = {'method': 'textract'}
     response = requests.post(
-        endpoint, params=param, headers=headers, data=pic_64)
+        endpoint, params=param, headers=headers, json={"picture": pic_64})
 
     return response.json()
 
