@@ -1,6 +1,7 @@
 import os
 import requests
 import base64
+import json
 
 # endpoint api gateway for use lambdafuction
 endpoint = 'https://shwoiyr3gb.execute-api.ap-southeast-1.amazonaws.com/default/Cloud-Final-FinalProject490383E6-gusO3NuxUHHh'
@@ -34,7 +35,7 @@ def textract(file):
     directory = os.getcwd()  # get current directory for write new file
     path = os.path.join(directory, file)
     pic_bytes = open(path, 'rb').read()
-    pic_64 = base64.b64encode(pic_bytes)
+    pic_64 = base64.b64encode(pic_bytes).decode("utf8")
     param = {'method': 'textract'}
     response = requests.post(
         endpoint, params=param, headers=headers, json={"picture": pic_64})
