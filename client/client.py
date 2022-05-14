@@ -1,20 +1,18 @@
 import os
 import requests
 import base64
-import bcrypt
 
 # endpoint api gateway for use lambdafuction
 endpoint = 'https://shwoiyr3gb.execute-api.ap-southeast-1.amazonaws.com/default/Cloud-Final-FinalProject490383E6-gusO3NuxUHHh'
 
 headers = {'Content-type': 'application/json; charset=utf-8'}
 
-uuid = None
+user_id = ''
 
 
 def newuser(username, password):  # create new user
-    # password = bcrypt.kdf(password.encode('UTF-8'),
-    #                       salt=b'bnb2022', desired_key_bytes=32, rounds=100)
-    param = {'username': username, 'password': password, 'method': 'newuser'}
+    param = {'username': username, 'password': str(
+        password), 'method': 'newuser'}
     response = requests.post(
         endpoint, params=param, headers=headers)
 
@@ -67,14 +65,14 @@ def textract(file):
 
 print('''Welcome to Samsun-G Application
 ======================================================
-Please input command (newuser username password, textract filename
+Please input command (newuser username password, textract filename or logout
 If you want to quit the program just type quit.
 ======================================================''')
 
 # put filename, put username password, get uuid, view resource, or logout).
 
 while True:
-    command_input = input(">>")
+    command_input = input(user_id+" >> ")
     comands = command_input.split(' ')
 
     if comands[0] == 'newuser':
@@ -84,9 +82,14 @@ while True:
     if comands[0] == 'login':
         response = login(comands[1], comands[2])
         print(response)
+        if response['success']:
+            user_id = comands[1]
 
     if comands[0] == 'textract':
         print(textract(comands[1]))
+
+    if comands[0] == 'logout':
+        user_id = ''
 
     if comands[0] == 'quit':
         exit(0)

@@ -49,6 +49,24 @@ def main(event, context):
             }
         )
 
+    def get_data(user_id, resource_key):
+        data = table.get_item(
+            Key={
+                "user_id": user_id,
+                "resource_key": resource_key
+            },
+            AttributesToGet=[
+                'data',
+            ],)['Item']['data']
+
+        for key in data:
+            if data[key]['is_secret']:
+                secret_res = json.loads(secrets.get_secret_value(
+                    SecretId=user_id)['SecretString'])
+                data[key]['data'] = secret_res[data[key]['data']]
+
+        return data
+
     # # data = dynamo_client.get_item(TableName=TABLE_NAME, Key={"username": {"S": username}})
     # data = dynamo_client.get_item(TableName=TABLE_NAME,)
 
@@ -59,7 +77,7 @@ def main(event, context):
 
     if method == 'newuser':
 
-        # data_insert = {'username': {"M":{'data': {"S":userInput['username']}, 'is_secret': {"BOOL":False}}}, 'password': {"M":{'data': {"S":userInput['password']}, 'is_secret': {"BOOL":False}}}}
+        # data_insert = {'username': {'data': userInput['username'], 'is_secret': False}, 'password': {'data': userInput['password'], 'is_secret': False}}
 
         try:
             secret_res = secrets.create_secret(
@@ -68,7 +86,8 @@ def main(event, context):
                               "id": random_value, "password": userInput['password']})
             )
             print(secret_res)
-            data_insert = {'password': random_value, 'is_secret': True}
+            data_insert = {'password': {
+                "data": random_value, 'is_secret': True}}
             db_res = put_dynamo(userInput['username'], 'base', data_insert)
             print(db_res)
 
@@ -82,26 +101,19 @@ def main(event, context):
         # data = dynamo_client.scan(TableName=TABLE_NAME, FilterExpression=Attr("resource_key").eq("base") & Attr("data").contains("username"))
 
     if method == 'login':
-        data = table.get_item(
-            Key={
-                "user_id": userInput['username'],
-                "resource_key": "base"
-            },
-            AttributesToGet=[
-                'data',
-            ],)['Item']['data']
+        data = get_data(userInput['username'], "base")
+        password = data['password']['data']
 
-        password = data['password']
-
-        if data['is_secret']:
-            secret_res = json.loads(secrets.get_secret_value(
-                SecretId=userInput['username'])['SecretString'])
-            password = secret_res[password]
-
-        response = {
-            "success": True,
-            "data": password
-        }
+        if userInput['password'] == password:
+            response = {
+                "success": True,
+                "data": "200 Authorized"
+            }
+        else:
+            response = {
+                "success": False,
+                "data": "403 Forbidden"
+            }
 
     if method == 'textract':
         pic_64 = json.loads(dump)['body']
