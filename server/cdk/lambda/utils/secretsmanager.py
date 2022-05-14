@@ -25,6 +25,11 @@ def create_secret(name, secret_value):
 
 
 def put_secret(name, secret_value):
+    secret_dict = get_secret(name)
+    print(secret_value)
+    secret_dict.update(secret_value)
+    print('secret_dict:',secret_dict)
+    secret_value = json.dumps(secret_dict)
     try:
 
         response = secretsmanager_client.put_secret_value(
@@ -36,3 +41,22 @@ def put_secret(name, secret_value):
         raise
     else:
         return response
+
+def get_secret(name):
+    try:
+        response =secretsmanager_client.get_secret_value(SecretId=name)
+    except ClientError:
+        print("This secret is not exist.")
+        raise
+    else:
+        return json.loads(response['SecretString'])
+
+
+def get_secret_value(name, key_name):
+    try:
+        response =secretsmanager_client.get_secret_value(SecretId=name)
+    except ClientError:
+        print("This secret is not exist.")
+        raise
+    else:
+        return json.loads(response['SecretString'])[key_name]

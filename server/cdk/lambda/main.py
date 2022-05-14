@@ -1,12 +1,12 @@
 import json
 
-from handlers.feature import textract_card_handler, test_create_secret_handler
+from handlers.feature import put_card_handler, test_create_secret_handler, put_app_handler, list_resource_handler, get_resource_handler
 from handlers.user import create_user_handler, login_handler
 
 # Main lambda function
 def lambda_handler(event, context):
     # log the incomming event
-    print("event:", event)
+    # print("event:", event)
 
     # Extract the body and command from event data
     body = json.loads(event["body"])
@@ -16,12 +16,14 @@ def lambda_handler(event, context):
     print("Method:", command)
 
     # Define function for each command in commands var.
-    commands = ["newuser", "login", "textract", "create_secret"]
+    commands = ["newuser", "login", "put_card", "put_app", "list_resource", "get_resource"]
     command_fns = [
         create_user_handler,
         login_handler,
-        textract_card_handler,
-        test_create_secret_handler
+        put_card_handler,
+        put_app_handler,
+        list_resource_handler,
+        get_resource_handler
     ]
 
     # Check if input command is available
