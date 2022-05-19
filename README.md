@@ -12,7 +12,7 @@
 First run `poetry shell` then `poetry install` to install all dependencies
 
 ### Client
-`cd client` then run `python3 client.py` to start the client cli.
+`cd client` then run `python3 client.py` to start the client cli. If you have your own Lambda please edit `endpoint` variable in `client/client.py`
 
  - To create new user, run
  ```
