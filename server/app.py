@@ -7,7 +7,7 @@ from cdk.cdk_stack import FinalProjStack
 
 
 config = {
-    "account_id": "402007393381",
+    "account_id": "",
     "region": "ap-southeast-1",
 }
 
