@@ -49,3 +49,8 @@ class FinalProjStack(Stack):
                 'AmazonTextractFullAccess'
             )
         )
+        lambda_fn.role.add_managed_policy(
+            iam.ManagedPolicy.from_aws_managed_policy_name(
+                'SecretsManagerReadWrite'
+            )
+        )
