@@ -30,6 +30,7 @@ First run `poetry shell` then `poetry install` to install all dependencies
  ```
  {username} >> put_card <name-to-save> <path-of-card-image> <cvv>
  ```
+ > The card image should be same directory as client.py
  - To View your application or card detail, run
  ```
  {username} >> view <resource-name> <path-of-card-image> <cvv>
