@@ -7,8 +7,8 @@ from cdk.cdk_stack import FinalProjStack
 
 
 config = {
-    'account_id':"402007393381",
-    'region':"ap-southeast-1",
+    "account_id": "",
+    "region": "ap-southeast-1",
 }
 
 stack_config = cdk.Environment(account=config["account_id"], region=config["region"])
