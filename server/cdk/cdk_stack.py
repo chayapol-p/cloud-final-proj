@@ -21,7 +21,7 @@ class FinalProjStack(Stack):
             self,
             "FinalProject",
             code=lambda_.Code.from_asset(os.path.join(dirname, "lambda")),
-            handler="lambda-handler.main",
+            handler="main.lambda_handler",
             runtime=lambda_.Runtime.PYTHON_3_7,
             environment={"TABLE_NAME": table_name, "REGION": region},
         )
@@ -47,5 +47,10 @@ class FinalProjStack(Stack):
         lambda_fn.role.add_managed_policy(
             iam.ManagedPolicy.from_aws_managed_policy_name(
                 'AmazonTextractFullAccess'
+            )
+        )
+        lambda_fn.role.add_managed_policy(
+            iam.ManagedPolicy.from_aws_managed_policy_name(
+                'SecretsManagerReadWrite'
             )
         )
